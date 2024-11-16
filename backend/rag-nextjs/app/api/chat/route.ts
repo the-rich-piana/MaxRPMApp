@@ -4,14 +4,13 @@ export const fetchCache = 'force-no-store'
 
 import loadVectorStore from '@/lib/vectorStore'
 import { SystemMessage, AIMessage, HumanMessage } from '@langchain/core/messages'
-import type { ChatPromptTemplate } from '@langchain/core/prompts'
+import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { ChatGroq } from '@langchain/groq'
 import { type Message } from 'ai/react'
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents'
 import { createRetrievalChain } from 'langchain/chains/retrieval'
 import { pull } from 'langchain/hub'
 import { NextRequest } from 'next/server'
-
 
 const llm = new ChatGroq({
   model: "llama-3.2-90b-vision-preview",
@@ -27,8 +26,11 @@ const encoder = new TextEncoder()
 export async function POST(request: NextRequest) {
   const vectorStore = await loadVectorStore()
   const { messages = [] } = (await request.json()) as { messages: Message[] }
-  const initialSystemPrompt = new SystemMessage(`
-    You are a compassionate and supportive AI designed to facilitate reminiscence therapy for individuals with dementia, Alzheimer’s, or memory loss. Your goal is to engage users in meaningful, positive, and comforting conversations that encourage them to recall and share memories from their past, fostering a sense of connection, self-worth, and joy.
+  const userMessages = messages.filter((i) => i.role === 'user')
+  const input = userMessages[userMessages.length - 1].content
+  const retrievalQAChatPrompt = await pull<ChatPromptTemplate>('langchain-ai/retrieval-qa-chat')
+  const prompt = ChatPromptTemplate.fromMessages([
+    ["system", `You are a compassionate and supportive AI designed to facilitate reminiscence therapy for individuals with dementia, Alzheimer’s, or memory loss. Your goal is to engage users in meaningful, positive, and comforting conversations that encourage them to recall and share memories from their past, fostering a sense of connection, self-worth, and joy.
     Tone and Approach:
     - Be warm, empathetic, and patient at all times.
     - Validate emotions and celebrate even small moments of recall or engagement.
@@ -69,32 +71,28 @@ export async function POST(request: NextRequest) {
     - End conversations on a positive note, expressing gratitude and warmth, e.g., “It was so lovely talking with you today. I hope we can chat again soon!”
     
     Initial Prompt to Start the Conversation:
-    “Hello! I’d love to hear about some of your favorite memories. Would you like to talk about your childhood, a favorite holiday, or maybe a hobby you enjoyed?”`
-  );
-  const userMessages = messages.filter((i) => i.role === 'user')
-  const input = userMessages[userMessages.length - 1].content
-  const retrievalQAChatPrompt = await pull<ChatPromptTemplate>('langchain-ai/retrieval-qa-chat')
+    “Hello! I’d love to hear about some of your favorite memories. Would you like to talk about your childhood, a favorite holiday, or maybe a hobby you enjoyed?
+    <context>
+    {context}
+    </context>`],
+    ["placeholder", "{chat_history}"],
+    ["human", "{input}"],
+  ])
+
   const retriever = vectorStore.asRetriever({ k: 10, searchType: 'similarity' })
   const combineDocsChain = await createStuffDocumentsChain({
     llm,
-    prompt: retrievalQAChatPrompt,
+    prompt: prompt,
   })
   const retrievalChain = await createRetrievalChain({
     retriever,
     combineDocsChain,
   })
-  const chatHistory = [
-    initialSystemPrompt, // Add the manually defined system prompt first
-    ...messages.map((i) =>
-      i.role === 'user'
-        ? new HumanMessage(i.content)
-        : new AIMessage(i.content)
-    ),
-  ];
+
   const customReadable = new ReadableStream({
     async start(controller) {
-      // const stream = await retrievalChain.stream({ input, chat_history: messages.map((i) => (i.role === 'user' ? new HumanMessage(i.content) : new AIMessage(i.content))) })
-      const stream = await retrievalChain.stream({ input, chat_history: chatHistory })
+      const stream = await retrievalChain.stream({ input, chat_history: messages.map((i) => (i.role === 'user' ? new HumanMessage(i.content) : new AIMessage(i.content))) })
+      // const stream = await retrievalChain.stream({ input, chat_history: chatHistory })
       for await (const chunk of stream) {
         controller.enqueue(encoder.encode(chunk.answer))
       }
