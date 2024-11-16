@@ -17,6 +17,7 @@ export const styles = ({theme}: {theme: Theme}) =>
     },
     emptyComponentTitle: {
       ...theme.fonts.emptyChatPlaceholderTextStyle,
+      fontSize: 24,
       textAlign: 'center',
     },
     flatList: {

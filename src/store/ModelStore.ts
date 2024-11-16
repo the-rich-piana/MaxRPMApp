@@ -33,7 +33,7 @@ class ModelStore {
   downloadJobs = new ObservableMap(); //new Map();
   useMetal = false; //Platform.OS === 'ios';
 
-  lastUsedModelId: string | undefined = undefined;
+  lastUsedModelId: string = 'default-llama-3.2-1b-instruct-q4_0_4_4.gguf';
 
   MIN_CONTEXT_SIZE = 200;
 
@@ -388,7 +388,7 @@ class ModelStore {
       console.log('ctx: ', ctx);
       runInAction(() => {
         this.context = ctx;
-        this.setActiveModel(model.id);
+        this.setActiveModel(this.lastUsedModelId);
       });
       return ctx;
     } finally {

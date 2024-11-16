@@ -70,4 +70,4 @@ package-lock.json
 
 # conda enbviroment
 .conda
-.venv
+.venvyarn.lock

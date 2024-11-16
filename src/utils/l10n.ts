@@ -2,13 +2,13 @@
 export const l10n = {
   en: {
     attachmentButtonAccessibilityLabel: 'Send media',
-    emptyChatPlaceholder: 'No messages here yet',
+    emptyChatPlaceholder: 'Hi! How can I help!',
     fileButtonAccessibilityLabel: 'File',
     inputPlaceholder: 'Message',
     sendButtonAccessibilityLabel: 'Send',
     modelNotLoaded: 'Model not loaded. Please initialize the model.',
     loadingModel: 'Loading model ...',
-    typeYourMessage: 'Type your message here',
+    typeYourMessage: 'Type your message here or use the microphone',
     conversationReset: 'Conversation reset!',
     networkError: 'Network error. Please try again.',
     goToModels: 'Go to Models',

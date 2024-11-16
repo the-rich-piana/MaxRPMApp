@@ -42,6 +42,7 @@ import {
   unwrap,
   UserContext,
 } from '../../utils';
+import ChatInputWithMicrophone from '../Input/chatinputwithmicrophone';
 
 // Untestable
 /* istanbul ignore next */
@@ -172,6 +173,11 @@ export const ChatView = ({
     () => ({...l10n[locale], ...unwrap(l10nOverride)}),
     [l10nOverride, locale],
   );
+
+  const handleAudioRecorded = filePath => {
+    console.log('Audio saved at:', filePath);
+    // Do something with the recorded audio file
+  };
 
   const {chatMessages, gallery} = calculateChatMessages(messages, user, {
     customDateHeaderText,
@@ -420,6 +426,7 @@ export const ChatView = ({
     <UserContext.Provider value={user}>
       {/*<ThemeContext.Provider value={theme}>*/}
       <L10nContext.Provider value={l10nValue}>
+        {/* <Text>Hello</Text> */}
         <View style={container} onLayout={onLayout}>
           {customBottomComponent ? (
             <>
@@ -434,7 +441,24 @@ export const ChatView = ({
                 renderScrollable,
                 style: keyboardAccessoryView,
               }}>
-              <Input
+              {/* <Chat */}
+              {/* HELLO */}
+              <ChatInputWithMicrophone
+                {...{
+                  ...unwrap(inputProps),
+                  isAttachmentUploading,
+                  isStreaming,
+                  onAttachmentPress,
+                  onSendPress,
+                  onStopPress,
+                  isStopVisible,
+                  renderScrollable,
+                  sendButtonVisibilityMode,
+                  textInputProps,
+                  onMicPress: handleAudioRecorded,
+                }}
+              />
+              {/* <Input
                 {...{
                   ...unwrap(inputProps),
                   isAttachmentUploading,
@@ -447,7 +471,7 @@ export const ChatView = ({
                   sendButtonVisibilityMode,
                   textInputProps,
                 }}
-              />
+              /> */}
             </KeyboardAccessoryView>
           )}
           <ImageView
