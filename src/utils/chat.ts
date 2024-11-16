@@ -57,41 +57,41 @@ export async function applyChatTemplate(
 }
 
 export const chatTemplates: Record<string, ChatTemplateConfig> = {
-  danube3: {
-    ...Templates.templates.danube2,
-    name: 'danube3',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are a helpful assistant named H2O Danube3. You are precise, concise, and casual.',
-  },
-  danube2: {
-    ...Templates.templates.danube2,
-    name: 'danube2',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are a helpful assistant named H2O Danube2. You are precise, concise, and casual.',
-  },
-  phi3: {
-    ...Templates.templates.phi3,
-    name: 'phi3',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
-  },
-  gemmaIt: {
-    ...Templates.templates.gemmaIt,
-    name: 'gemmaIt',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
-  },
-  chatML: {
-    ...Templates.templates.chatML,
-    name: 'chatML',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
-  },
+  // danube3: {
+  //   ...Templates.templates.danube2,
+  //   name: 'danube3',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are a helpful assistant named H2O Danube3. You are precise, concise, and casual.',
+  // },
+  // danube2: {
+  //   ...Templates.templates.danube2,
+  //   name: 'danube2',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are a helpful assistant named H2O Danube2. You are precise, concise, and casual.',
+  // },
+  // phi3: {
+  //   ...Templates.templates.phi3,
+  //   name: 'phi3',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
+  // },
+  // gemmaIt: {
+  //   ...Templates.templates.gemmaIt,
+  //   name: 'gemmaIt',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
+  // },
+  // chatML: {
+  //   ...Templates.templates.chatML,
+  //   name: 'chatML',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
+  // },
   default: {
     ...Templates.templates.default,
     name: 'default',
@@ -112,36 +112,36 @@ export const chatTemplates: Record<string, ChatTemplateConfig> = {
     addGenerationPrompt: true,
     systemPrompt: '',
   },
-  gemmasutra: {
-    ...Templates.templates.gemmasutra,
-    name: 'gemmasutra',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
-  },
-  qwen2: {
-    ...Templates.templates.qwen2,
-    name: 'qwen2',
-    addGenerationPrompt: true,
-    systemPrompt: 'You are a helpful assistant.',
-  },
-  qwen25: {
-    ...Templates.templates.qwen25,
-    name: 'qwen25',
-    addGenerationPrompt: true,
-    systemPrompt:
-      'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.',
-  },
-  smolLM: {
-    name: 'smolLM',
-    addGenerationPrompt: true,
-    systemPrompt: 'You are a helpful assistant.',
-    bosToken: '<|im_start|>',
-    eosToken: '<|im_end|>',
-    addBosToken: false,
-    addEosToken: false,
-    chatTemplate: '',
-  },
+  // gemmasutra: {
+  //   ...Templates.templates.gemmasutra,
+  //   name: 'gemmasutra',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are a helpful conversational chat assistant. You are precise, concise, and casual.',
+  // },
+  // qwen2: {
+  //   ...Templates.templates.qwen2,
+  //   name: 'qwen2',
+  //   addGenerationPrompt: true,
+  //   systemPrompt: 'You are a helpful assistant.',
+  // },
+  // qwen25: {
+  //   ...Templates.templates.qwen25,
+  //   name: 'qwen25',
+  //   addGenerationPrompt: true,
+  //   systemPrompt:
+  //     'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.',
+  // },
+  // smolLM: {
+  //   name: 'smolLM',
+  //   addGenerationPrompt: true,
+  //   systemPrompt: 'You are a helpful assistant.',
+  //   bosToken: '<|im_start|>',
+  //   eosToken: '<|im_end|>',
+  //   addBosToken: false,
+  //   addEosToken: false,
+  //   chatTemplate: '',
+  // },
 };
 
 export const defaultCompletionParams: CompletionParams = {
