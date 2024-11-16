@@ -29,6 +29,34 @@ const App = observer(() => {
     return () => dispose();
   }, []);
 
+  React.useEffect(() => {
+    const initDefaultModel = async () => {
+      const defaultModelId = 'default-llama-3.2-1b-instruct-q4_0_4_4.gguf';
+      const defaultModel = modelStore.models.find(m => m.id === defaultModelId);
+
+      if (defaultModel) {
+        if (defaultModel.isDownloaded) {
+          try {
+            await modelStore.initContext(defaultModel);
+          } catch (error) {
+            console.error('Failed to initialize default model:', error);
+          }
+        } else {
+          await modelStore.checkSpaceAndDownload(defaultModelId);
+        }
+      } else {
+        console.warn('Default model not found in model list');
+      }
+    };
+
+    // Add a small delay to ensure modelStore is fully initialized
+    const timer = setTimeout(() => {
+      initDefaultModel();
+    }, 10);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const theme = useTheme();
 
   return (
