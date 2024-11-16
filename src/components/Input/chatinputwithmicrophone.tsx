@@ -12,6 +12,7 @@ import {Mic, MicOff} from 'lucide-react-native';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import {Input} from '..';
+import {transcribeAudio} from '../../utils/groq';
 
 const ChatInputWithMicrophone = ({
   isAttachmentUploading,
@@ -120,6 +121,18 @@ const ChatInputWithMicrophone = ({
     return true;
   };
 
+  const handleMicSend = (transcription: string) => {
+    const trimmedValue = transcription.trim();
+
+    // Impossible to test since button is not visible when value is empty.
+    // Additional check for the keyboard input.
+    /* istanbul ignore next */
+    if (trimmedValue) {
+      onSendPress({text: trimmedValue, type: 'text'});
+      // setText('');
+    }
+  };
+
   const startRecording = async () => {
     try {
       // Check permission before starting recording
@@ -179,12 +192,41 @@ const ChatInputWithMicrophone = ({
     } else {
       const filePath = await stopRecording();
       setIsRecording(false);
-      if (onMicPress && filePath) {
-        onMicPress(filePath);
+
+      if (filePath) {
+        try {
+          // Show loading indicator if needed
+          //   setIsTranscribing(true);
+
+          // Transcribe the audio
+          const transcription = await transcribeAudio({
+            audioPath: filePath,
+            // Optionally add any context specific to your app
+            // prompt: 'This is a conversation transcript',
+          });
+
+          console.log('Transcription:', transcription);
+
+          handleMicSend(transcription);
+          // Handle the transcription result
+          //   if (onTranscriptionComplete) {
+          //     onTranscriptionComplete(transcription);
+          //   }
+        } catch (error) {
+          console.error('Failed to transcribe:', error);
+          // Handle error (show alert, etc.)
+        }
+        //  finally {
+        //   setIsTranscribing(false);
+        // }
+
+        // Call original onMicPress if needed
+        if (onMicPress) {
+          onMicPress(filePath);
+        }
       }
     }
   };
-
   return (
     <View style={styles.outerContainer}>
       <View style={styles.micContainer}>
