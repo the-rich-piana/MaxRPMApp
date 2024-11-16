@@ -1,6 +1,16 @@
-import React, {useState} from 'react';
-import {View, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  PermissionsAndroid,
+  Alert,
+  Animated,
+} from 'react-native';
 import {Mic, MicOff} from 'lucide-react-native';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import RNFS from 'react-native-fs';
 import {Input} from '..';
 
 const ChatInputWithMicrophone = ({
@@ -17,23 +27,179 @@ const ChatInputWithMicrophone = ({
   ...inputProps
 }) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingPath, setRecordingPath] = useState('');
+  const [audioRecorderPlayer] = useState(() => new AudioRecorderPlayer());
+  const [hasPermission, setHasPermission] = useState(false);
 
-  const handleMicPress = () => {
-    setIsRecording(!isRecording);
-    if (onMicPress) {
-      onMicPress(!isRecording);
+  // Animation value for scaling
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Setup pulse animation when recording starts/stops
+  useEffect(() => {
+    console.log(isRecording);
+    if (isRecording) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleAnim, {
+            toValue: 1.2,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+    } else {
+      // Reset animation when stopped
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isRecording]);
+
+  useEffect(() => {
+    checkAndRequestPermission();
+
+    return () => {
+      if (isRecording) {
+        stopRecording();
+      }
+      audioRecorderPlayer.removeRecordBackListener();
+    };
+  }, []);
+
+  const checkAndRequestPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const currentPermission = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        );
+
+        if (currentPermission) {
+          setHasPermission(true);
+          return true;
+        }
+
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: 'Microphone Permission',
+            message: 'App needs access to your microphone to record audio',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Audio permission granted');
+          setHasPermission(true);
+          return true;
+        } else {
+          console.log('Audio permission denied');
+          Alert.alert(
+            'Permission Required',
+            'This feature requires microphone access. Please enable it in your phone settings.',
+            [{text: 'OK'}],
+          );
+          setHasPermission(false);
+          return false;
+        }
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    // For iOS, we'll assume permission is granted for now
+    // Add proper iOS permission handling if needed
+    return true;
+  };
+
+  const startRecording = async () => {
+    try {
+      // Check permission before starting recording
+      const permitted = await checkAndRequestPermission();
+      if (!permitted) {
+        return;
+      }
+
+      const dirPath = `${RNFS.DocumentDirectoryPath}/recordings`;
+
+      await RNFS.mkdir(dirPath).catch(err => {
+        if (err.code !== 'EEXIST') throw err;
+      });
+
+      const timestamp = Date.now();
+      const audioPath = Platform.select({
+        android: `${dirPath}/recording_${timestamp}.mp3`,
+        ios: `${dirPath}/recording_${timestamp}.m4a`,
+      });
+      console.log(audioPath);
+      if (audioPath) {
+        setRecordingPath(audioPath);
+      }
+
+      const result = await audioRecorderPlayer.startRecorder(audioPath);
+      audioRecorderPlayer.addRecordBackListener(e => {
+        console.log('Recording . . . ', e.currentPosition);
+      });
+
+      console.log('Recording started', result);
+      return true;
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      return false;
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      const result = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+
+      console.log('Recording stopped and saved:', recordingPath);
+      return recordingPath;
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+      return null;
+    }
+  };
+
+  const handleMicPress = async () => {
+    if (!isRecording) {
+      const started = await startRecording();
+      if (started) {
+        setIsRecording(true);
+      }
+    } else {
+      const filePath = await stopRecording();
+      setIsRecording(false);
+      if (onMicPress && filePath) {
+        onMicPress(filePath);
+      }
     }
   };
 
   return (
     <View style={styles.outerContainer}>
       <View style={styles.micContainer}>
-        <TouchableOpacity onPress={handleMicPress} style={styles.micButton}>
-          {isRecording ? (
-            <MicOff color="#EF4444" size={48} />
-          ) : (
-            <Mic color="#4B5563" size={48} />
-          )}
+        <TouchableOpacity
+          onPress={handleMicPress}
+          style={[
+            styles.micButton,
+            !hasPermission && styles.micButtonDisabled,
+          ]}>
+          <Animated.View
+            style={{
+              transform: [{scale: scaleAnim}],
+            }}>
+            <Mic color={isRecording ? '#A020F0' : '#4B5563'} size={48} />
+          </Animated.View>
         </TouchableOpacity>
       </View>
       <View style={styles.inputContainer}>
@@ -79,6 +245,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
+  },
+  micButtonDisabled: {
+    opacity: 0.5,
   },
 });
 

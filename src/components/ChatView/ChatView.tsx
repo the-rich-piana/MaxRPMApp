@@ -174,6 +174,11 @@ export const ChatView = ({
     [l10nOverride, locale],
   );
 
+  const handleAudioRecorded = filePath => {
+    console.log('Audio saved at:', filePath);
+    // Do something with the recorded audio file
+  };
+
   const {chatMessages, gallery} = calculateChatMessages(messages, user, {
     customDateHeaderText,
     dateFormat,
@@ -450,11 +455,7 @@ export const ChatView = ({
                   renderScrollable,
                   sendButtonVisibilityMode,
                   textInputProps,
-                  onMicPress: isRecording => {
-                    // Handle microphone press here
-                    console.log('Microphone pressed, recording:', isRecording);
-                    // Add your voice recording logic here
-                  },
+                  onMicPress: handleAudioRecorded,
                 }}
               />
               {/* <Input
