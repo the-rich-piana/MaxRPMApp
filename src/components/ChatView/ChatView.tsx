@@ -42,6 +42,7 @@ import {
   unwrap,
   UserContext,
 } from '../../utils';
+import ChatInputWithMicrophone from '../Input/chatinputwithmicrophone';
 
 // Untestable
 /* istanbul ignore next */
@@ -420,6 +421,7 @@ export const ChatView = ({
     <UserContext.Provider value={user}>
       {/*<ThemeContext.Provider value={theme}>*/}
       <L10nContext.Provider value={l10nValue}>
+        {/* <Text>Hello</Text> */}
         <View style={container} onLayout={onLayout}>
           {customBottomComponent ? (
             <>
@@ -434,7 +436,28 @@ export const ChatView = ({
                 renderScrollable,
                 style: keyboardAccessoryView,
               }}>
-              <Input
+              {/* <Chat */}
+              {/* HELLO */}
+              <ChatInputWithMicrophone
+                {...{
+                  ...unwrap(inputProps),
+                  isAttachmentUploading,
+                  isStreaming,
+                  onAttachmentPress,
+                  onSendPress,
+                  onStopPress,
+                  isStopVisible,
+                  renderScrollable,
+                  sendButtonVisibilityMode,
+                  textInputProps,
+                  onMicPress: isRecording => {
+                    // Handle microphone press here
+                    console.log('Microphone pressed, recording:', isRecording);
+                    // Add your voice recording logic here
+                  },
+                }}
+              />
+              {/* <Input
                 {...{
                   ...unwrap(inputProps),
                   isAttachmentUploading,
@@ -447,7 +470,7 @@ export const ChatView = ({
                   sendButtonVisibilityMode,
                   textInputProps,
                 }}
-              />
+              /> */}
             </KeyboardAccessoryView>
           )}
           <ImageView

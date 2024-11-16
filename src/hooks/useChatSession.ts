@@ -119,6 +119,7 @@ export const useChatSession = (
 
     const completionParams = toJS(modelStore.activeModel?.completionSettings);
 
+    //CALL LLM
     try {
       const result = await context.completion(
         {...completionParams, prompt},
