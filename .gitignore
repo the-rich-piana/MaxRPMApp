@@ -67,3 +67,7 @@ package-lock.json
 # testing
 /coverage
 .env
+
+# conda enbviroment
+.conda
+.venv
