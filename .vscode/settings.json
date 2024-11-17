@@ -1,3 +1,8 @@
 {
-    "jest.jestCommandLine": "yarn jest"
+    "jest.jestCommandLine": "yarn jest",
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#312262",
+        "titleBar.activeBackground": "#452F89",
+        "titleBar.activeForeground": "#FCFCFE"
+    }
 }

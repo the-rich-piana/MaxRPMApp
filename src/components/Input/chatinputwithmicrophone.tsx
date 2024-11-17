@@ -13,6 +13,8 @@ import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import {Input} from '..';
 import {transcribeAudio} from '../../utils/groq';
+import {sendGroqMessage} from '../../utils/groq_rag';
+import {result} from 'lodash';
 
 const ChatInputWithMicrophone = ({
   isAttachmentUploading,
@@ -121,6 +123,12 @@ const ChatInputWithMicrophone = ({
     return true;
   };
 
+  const handleGroqSendMessage = async (transcription: string) => {
+    const trimmedValue = transcription.trim();
+    const result = await sendGroqMessage(trimmedValue, null);
+    return result;
+  };
+
   const handleMicSend = (transcription: string) => {
     const trimmedValue = transcription.trim();
 
@@ -208,6 +216,7 @@ const ChatInputWithMicrophone = ({
           console.log('Transcription:', transcription);
 
           handleMicSend(transcription);
+          console.log('Groq Response:', handleGroqSendMessage(transcription));
           // Handle the transcription result
           //   if (onTranscriptionComplete) {
           //     onTranscriptionComplete(transcription);
